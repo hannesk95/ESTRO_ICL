@@ -103,7 +103,7 @@ class VisionLanguageModel:
 
         match self.task:
             case "sarcoma_binary":
-                file_path = "/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes/prompts/sarcoma/binary/system_prompt.txt"
+                file_path = "./prompts/sarcoma/binary/system_prompt.txt"
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
             case _:
@@ -129,7 +129,7 @@ class VisionLanguageModel:
 
             match self.task:
                 case "sarcoma_binary":
-                    file_path = "/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes/prompts/sarcoma/binary/user_prompt_zero_shot.txt"
+                    file_path = "./prompts/sarcoma/binary/user_prompt_zero_shot.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case _:
@@ -203,11 +203,11 @@ class VisionLanguageModel:
 
             match self.task:
                 case "sarcoma_binary":
-                    file_path = "/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes/prompts/sarcoma/binary/user_prompt_few_shot.txt"
+                    file_path = "./prompts/sarcoma/binary/user_prompt_few_shot.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case "sarcoma_multiclass":
-                    file_path = "/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes/prompts/sarcoma/multiclass/user_prompt_few_shot.txt"
+                    file_path = "./prompts/sarcoma/multiclass/user_prompt_few_shot.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case _:

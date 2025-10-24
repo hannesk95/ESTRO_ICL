@@ -6,8 +6,7 @@ from glob import glob
 import os
 from tqdm import tqdm
 import numpy as np
-import sys
-sys.path.append("/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes")
+
 
 def main(model_name, task, shots, sampling, decomposition):
 
@@ -19,7 +18,7 @@ def main(model_name, task, shots, sampling, decomposition):
 
     match task:
         case "sarcoma_binary":
-            files = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ICL-VL/johannes/data/sarcoma/binary/T1FsGd/*{decomposition}.png"))
+            files = sorted(glob(f"./data/sarcoma/binary/T1FsGd/*{decomposition}.png"))
             files = sorted([f for f in files if not "label" in f])
             labels = [int(os.path.basename(f).split("_")[2]) for f in files]
             labels = [0 if l == 1 else 1 for l in labels]
