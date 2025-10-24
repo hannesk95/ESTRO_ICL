@@ -32,7 +32,7 @@ class VisionLanguageModel:
         self.task = task
         self.decomposition = decomposition
         
-        
+        login(token=torch.load("hf_token.pt"))
 
         self.pipe = pipeline("image-text-to-text",
                              model=model_name,
