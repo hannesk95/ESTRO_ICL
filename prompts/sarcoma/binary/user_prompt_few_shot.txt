@@ -53,4 +53,6 @@ Again here is the template to structure your JSON output (please make sure that 
 
 Begin your response with '{' and end with '}'. Do not use markdown code fences.
 
+Please note, even if think that the image provided is not an MRI scan of a soft tissue sarcoma, please always stick to the template above, by only giving an answer and a score and nothing else! 
+
 Here is the patient image:

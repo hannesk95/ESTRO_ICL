@@ -105,13 +105,13 @@ def main(model_name, task, shots, sampling, decomposition):
 if __name__ == "__main__":
 
     # for model_name in ["google/medgemma-4b-it", "google/gemma-3-4b-it"]:
-    for model_name in ["google/medgemma-4b-it", "google/gemma-3-4b-it", "google/gemma-3-12b-it"]:
+    for model_name in ["google/medgemma-4b-it", "google/gemma-3-12b-it"]:
         # for task in ["sarcoma_binary", "sarcoma_multiclass"]:
         for task in ["sarcoma_binary"]:
             # for shots in [0, 1, 3, 5, 7, 10, -1]:
             for shots in [0, 3, 5, 10]:
                 # for sampling in ["random", "radiomics"]:
-                for sampling in ["radiomics_2D", "radiomics_3D", "random"]:
+                for sampling in ["radiomics_2D", "radiomics_3D", "random", "worst-case_2D", "worst-case_3D"]:
                     # for decomposition in ["axial", "axial+", "mip"]:
                     for decomposition in ["mip", "axial", "axial+"]:
 

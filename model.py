@@ -39,6 +39,28 @@ class VisionLanguageModel:
                              dtype=torch.bfloat16,
                              device="cuda")    
     
+    def parse_json_output(self, output: str):
+        if not isinstance(output, str):
+            raise TypeError("Expected a string output")
+
+        # Remove code block markers like ```json ... ```
+        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", output.strip(), flags=re.IGNORECASE)
+
+        try:
+            data = json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse JSON: {e}\nCleaned content was:\n{cleaned!r}")
+
+        if not isinstance(data, dict):
+            raise ValueError(f"Expected a JSON object, got {type(data)}")
+
+        # Optional: enforce expected keys
+        if not {"answer", "score"} <= data.keys():
+            raise ValueError(f"Missing expected keys in JSON: {data}")
+
+        return data
+
+
     def cosine_similarity_matrix(self, patient_ids, vectors):
         """
         Computes the NxN cosine similarity matrix for patient feature vectors.
@@ -156,9 +178,9 @@ class VisionLanguageModel:
                 images_low_grade = np.array(images_low_grade)[low_grade_indices]
                 images_high_grade = np.array(images_high_grade)[high_grade_indices]
 
-            elif self.sampling in ["radiomics_2D", "radiomics_3D"]:
+            elif self.sampling in ["radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D"]:
 
-                similarity_type = "2D" if self.sampling == "radiomics_2D" else "3D"
+                similarity_type = self.sampling.split("_")[1]
                 files = [f.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt") for f in train_samples]
                 files.append(test_sample.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt"))                
 
@@ -179,6 +201,10 @@ class VisionLanguageModel:
                 
                 test_sample_id = os.path.basename(test_sample).split("_")[0]
                 top_similar_ids, top_similar_scores = self.get_top_n_similar(df, patient_id=test_sample_id, n=df.shape[0], include_self=False)
+
+                if "worst-case" in self.sampling:
+                    top_similar_ids = top_similar_ids[::-1]  # Reverse for worst-case scenario
+                    top_similar_scores = top_similar_scores[::-1]
 
                 images_low_grade = []
                 images_high_grade = []
@@ -250,8 +276,9 @@ class VisionLanguageModel:
         output = self.pipe(text=message, max_new_tokens=200)
 
         output = output[0]["generated_text"][-1]["content"]       
-        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", output.strip(), flags=re.DOTALL)     
-        data = json.loads(cleaned)    
+        # cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", output.strip(), flags=re.DOTALL)     
+        # data = json.loads(cleaned)    
+        data = self.parse_json_output(output)  
 
         return data
 
