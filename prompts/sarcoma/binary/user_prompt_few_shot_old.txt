@@ -1,0 +1,27 @@
+Good answers:
+- contain only "high-grade" or "low-grade" as valid answers in the "answer" field with no punctuation and in this exact format
+
+The images are T1FsGd MRI showing the biggest slice in terms of lesion area in axial direction.
+
+
+To help you finding the correct answer, we additionally provide you with example images from other patients together with their actual tumor grade.
+
+1. Take your time to think carefully about these images. Try to find and learn the patterns that distinguish images of high-grade from low-grade soft-tissue sarcomas.
+2. Then have a look at the patient image that is provided below. Take a deep breath and think about wheter you see patterns of high-grade or low-grade given all your knowledge.
+   If you are sure about the tumor grade, do not think about the examples you have seen. Be unbiased and provide youre answer. 
+3. If you are not sure about the tumor grade, follow these steps:
+    - Remember what you have seen in the example images. 
+    - Think carefully if they could help you in finding an answer.
+    - Then go to point 4. 
+4. Finalize your answer with a score. As an example, a score of 1 means you are 100% sure to see a high-grade soft-tissue sarcoma, a score of 0 means you see a low-grade soft-tissue sarcoma in the image. A score close to 0.6 means you had to guess, but you tend towards seeing a high-grade soft-tissue sarcoma. The answer should contain "high-grade" or "low-grade" only. 
+
+Again here is the template to structure your JSON output. Your response MUST be a single, valid JSON object and nothing else. 
+
+{
+    "answer": "your answer comes here",
+    "score": "your score comes here"
+}
+
+Begin your response with '{' and end with '}'. Do not use markdown code fences.
+
+We first provide you with example images and their corresponding grade. The last image is the actual patient image we ask you to predict the tumor grade.

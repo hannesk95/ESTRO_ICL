@@ -1,0 +1,12 @@
+# directories
+__pycache__
+conda_env
+mlruns
+GPT-4V-In-Context-Learning
+
+# files
+*.pt
+*.png
+*.nii.gz
+*.json
+*.ipynb
