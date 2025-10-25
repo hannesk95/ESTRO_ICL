@@ -108,7 +108,7 @@ def main(model_name, task, shots, sampling, decomposition):
 if __name__ == "__main__":
 
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("--model_id", type=int, default=None)
+    argparser.add_argument("--model_id", type=int, default=0)
     args = argparser.parse_args()
 
     models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-12b-it", "google/gemma-3-27b-it"]
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D"]:
                 for decomposition in ["mip", "axial", "axial+"]:
 
-                    mlflow.set_experiment(f"{task}")
+                    # mlflow.set_experiment(f"temp")
                     mlflow.start_run()
                     main(model_name, task, shots, sampling, decomposition)
                     mlflow.end_run()
