@@ -16,14 +16,14 @@ class VisionLanguageModel:
                  model_name="google/medgemma-4b-it",
                  shots: int = 10,
                  sampling: str = "radiomics", 
-                 task: str = "sarcoma_binary",
+                 task: str = "sarcoma_binary_t1",
                  decomposition: str = "axial"
                  ):
 
         assert model_name in ["google/medgemma-4b-it", "google/gemma-3-4b-it", "google/medgemma-27b-it", "google/gemma-3-27b-it", "google/gemma-3-12b-it"]
         assert shots in [0, 1, 3, 5, 7, 10, -1]
-        assert sampling in ["radiomics_2D", "radiomics_3D", "random"]
-        assert task in ["sarcoma_binary", "sarcoma_multiclass"]
+        assert sampling in ["radiomics_2D", "radiomics_3D", "random", "worst-case_2D", "worst-case_3D"]
+        assert task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "sarcoma_multiclass"]
         assert decomposition in ["axial", "axial+", "mip"]
 
         self.modle_name = model_name
@@ -59,7 +59,6 @@ class VisionLanguageModel:
             raise ValueError(f"Missing expected keys in JSON: {data}")
 
         return data
-
 
     def cosine_similarity_matrix(self, patient_ids, vectors):
         """
@@ -124,8 +123,12 @@ class VisionLanguageModel:
     def create_system_prompt(self) -> dict:
 
         match self.task:
-            case "sarcoma_binary":
-                file_path = "./prompts/sarcoma/binary/system_prompt.txt"
+            case "sarcoma_binary_t1":
+                file_path = "./prompts/sarcoma/binary/system_prompt_T1FsGd.txt"
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            case "sarcoma_binary_t2":
+                file_path = "./prompts/sarcoma/binary/system_prompt_T2Fs.txt"
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
             case _:
@@ -150,8 +153,12 @@ class VisionLanguageModel:
             image = Image.open(test_sample)
 
             match self.task:
-                case "sarcoma_binary":
-                    file_path = "./prompts/sarcoma/binary/user_prompt_zero_shot.txt"
+                case "sarcoma_binary_t1":
+                    file_path = f"./prompts/sarcoma/binary/user_prompt_zero_shot_T1FsGd_{self.decomposition}.txt"
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                case "sarcoma_binary_t2":
+                    file_path = f"./prompts/sarcoma/binary/user_prompt_zero_shot_T2Fs_{self.decomposition}.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case _:
@@ -228,12 +235,12 @@ class VisionLanguageModel:
             test_image = Image.open(test_sample)
 
             match self.task:
-                case "sarcoma_binary":
-                    file_path = "./prompts/sarcoma/binary/user_prompt_few_shot.txt"
+                case "sarcoma_binary_t1":
+                    file_path = f"./prompts/sarcoma/binary/user_prompt_few_shot_T1FsGd_{self.decomposition}.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
-                case "sarcoma_multiclass":
-                    file_path = "./prompts/sarcoma/multiclass/user_prompt_few_shot.txt"
+                case "sarcoma_binary_t2":
+                    file_path = f"./prompts/sarcoma/binary/user_prompt_few_shot_T2Fs_{self.decomposition}.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case _:
@@ -278,7 +285,17 @@ class VisionLanguageModel:
         output = output[0]["generated_text"][-1]["content"]       
         # cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", output.strip(), flags=re.DOTALL)     
         # data = json.loads(cleaned)    
-        data = self.parse_json_output(output)  
+        # data = self.parse_json_output(output)
+        answer = re.search(r'"answer"\s*:\s*"([^"]+)"', output)
+        score = re.search(r'"score"\s*:\s*([0-9.]+)', output)
+
+        answer = answer.group(1) if answer else None
+        score = float(score.group(1)) if score else None  
+
+        data = {
+            "answer": answer,
+            "score": score
+        }
 
         return data
 

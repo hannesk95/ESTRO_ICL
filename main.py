@@ -6,6 +6,7 @@ from glob import glob
 import os
 from tqdm import tqdm
 import numpy as np
+import argparse
 
 
 def main(model_name, task, shots, sampling, decomposition):
@@ -17,14 +18,16 @@ def main(model_name, task, shots, sampling, decomposition):
     mlflow.log_param("decomposition", decomposition)
 
     match task:
-        case "sarcoma_binary":
+        case "sarcoma_binary_t1":
             files = sorted(glob(f"./data/sarcoma/binary/T1FsGd/*{decomposition}.png"))
             files = sorted([f for f in files if not "label" in f])
             labels = [int(os.path.basename(f).split("_")[2]) for f in files]
             labels = [0 if l == 1 else 1 for l in labels]
-        case "sarcoma_multiclass":
-            files = ...
-            labels = ...
+        case "sarcoma_binary_t2":
+            files = sorted(glob(f"./data/sarcoma/binary/T2Fs/*{decomposition}.png"))
+            files = sorted([f for f in files if not "label" in f])
+            labels = [int(os.path.basename(f).split("_")[2]) for f in files]
+            labels = [0 if l == 1 else 1 for l in labels]
         case _:
             raise NotImplementedError(f"Task {task} not implemented.")
 
@@ -104,18 +107,19 @@ def main(model_name, task, shots, sampling, decomposition):
 
 if __name__ == "__main__":
 
-    # for model_name in ["google/medgemma-4b-it", "google/gemma-3-4b-it"]:
-    for model_name in ["google/medgemma-4b-it", "google/gemma-3-12b-it"]:
-        # for task in ["sarcoma_binary", "sarcoma_multiclass"]:
-        for task in ["sarcoma_binary"]:
-            # for shots in [0, 1, 3, 5, 7, 10, -1]:
-            for shots in [0, 3, 5, 10]:
-                # for sampling in ["random", "radiomics"]:
-                for sampling in ["radiomics_2D", "radiomics_3D", "random", "worst-case_2D", "worst-case_3D"]:
-                    # for decomposition in ["axial", "axial+", "mip"]:
-                    for decomposition in ["mip", "axial", "axial+"]:
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("--model_id", type=int, default=None)
+    args = argparser.parse_args()
 
-                        # mlflow.set_experiment(f"{task}")
-                        mlflow.start_run()
-                        main(model_name, task, shots, sampling, decomposition)
-                        mlflow.end_run()
+    models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-12b-it", "google/gemma-3-27b-it"]
+    model_name = models[args.model_id]
+
+    for task in ["sarcoma_binary_t1", "sarcoma_binary_t2"]:
+        for shots in [0, 3, 5, 10]:
+            for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D"]:
+                for decomposition in ["mip", "axial", "axial+"]:
+
+                    mlflow.set_experiment(f"{task}")
+                    mlflow.start_run()
+                    main(model_name, task, shots, sampling, decomposition)
+                    mlflow.end_run()
