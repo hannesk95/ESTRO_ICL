@@ -13,7 +13,9 @@ Please have a careful look at the image and think about it.
 Please provide your final answer in JSON format. Do not return any answer outside of this format. Your response MUST be a single, valid JSON object and nothing else.
 {
     "answer": allowed values are "high-grade" or "low-grade",
-    "score": a floating point value from 0 to 1. 
+    "score": a valid floating point value from 0.0 to 1.0 
 }
+
+Please always stick to the template above, by only giving an answer as a valid string "high-grade" or "low-grade" and a score as a valid floating point value between 0.0 and 1.0 and nothing else! Please avoid returning None for the score, please always give a floating point value for the score! 
 
 Begin your response with '{' and end with '}'. Do not use markdown code fences.

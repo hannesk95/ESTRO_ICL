@@ -27,12 +27,12 @@ Here are some considerations to take into account:
 Again here is the template to structure your JSON output. Your response MUST be a single, valid JSON object and nothing else. 
 
 {
-    "answer": "your answer comes here",
-    "score": "your score comes here"
+    "answer": allowed values are "high-grade" or "low-grade",
+    "score": a valid floating point value from 0.0 to 1.0 
 }
 
 Begin your response with '{' and end with '}'. Do not use markdown code fences.
 
-Please note, even if think that the image provided is not an MRI scan of a soft tissue sarcoma, please always stick to the template above, by only giving an answer as a valid string and a score as a valid float and nothing else! 
+Please note, even if think that the image provided is not an MRI scan of a soft tissue sarcoma, please always stick to the template above, by only giving an answer as a valid string and a score as a valid float and nothing else! Please avoid returning None for the score, please always give a floating point value for the score! 
 
 Here is the patient image:
