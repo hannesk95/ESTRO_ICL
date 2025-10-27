@@ -7,6 +7,7 @@ import os
 from tqdm import tqdm
 import numpy as np
 import argparse
+from sklearn.metrics import confusion_matrix
 
 
 def main(model_name, task, shots, sampling, decomposition):
@@ -43,6 +44,10 @@ def main(model_name, task, shots, sampling, decomposition):
     mcc_list = []
     f1_list = []
     auroc_list = []
+    specificity_list = []
+    sensitivity_list = []
+    precision_list = []
+    recall_list = []
 
     for fold, (train_idx, test_idx) in enumerate(skf.split(files, labels)):        
 
@@ -71,17 +76,30 @@ def main(model_name, task, shots, sampling, decomposition):
         mcc = matthews_corrcoef(test_labels, pred_labels)
         f1 = f1_score(test_labels, pred_labels, average="weighted")
         roc_auc = roc_auc_score(test_labels, pred_scores)
+        tn, fp, fn, tp = confusion_matrix(true_labels, pred_labels).ravel()
+        specificity = tn / (tn + fp)
+        sensitivity = tp / (tp + fn)
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
 
         # Log metrics
         mlflow.log_metric(f"fold_{fold}_bcc", bal_acc)
         mlflow.log_metric(f"fold_{fold}_mcc", mcc)
         mlflow.log_metric(f"fold_{fold}_f1-score", f1)
         mlflow.log_metric(f"fold_{fold}_auroc", roc_auc)
+        mlflow.log_metric(f"fold_{fold}_specificity", specificity)
+        mlflow.log_metric(f"fold_{fold}_sensitivity", sensitivity)
+        mlflow.log_metric(f"fold_{fold}_precision", precision)
+        mlflow.log_metric(f"fold_{fold}_recall", recall)
     
         bacc_list.append(bal_acc)
         mcc_list.append(mcc)
         f1_list.append(f1)
         auroc_list.append(roc_auc)
+        specificity_list.append(specificity)
+        sensitivity_list.append(sensitivity)
+        precision_list.append(precision)
+        recall_list.append(recall)
 
     # Log average metrics
     bacc_mean = np.mean(bacc_list)
@@ -103,7 +121,26 @@ def main(model_name, task, shots, sampling, decomposition):
     auroc_std = np.std(auroc_list)
     mlflow.log_metric("auroc_mean", auroc_mean)
     mlflow.log_metric("auroc_std", auroc_std)
-    
+
+    specificity_mean = np.mean(specificity_list)
+    specificity_std = np.std(specificity_list)
+    mlflow.log_metric("specificity_mean", specificity_mean)
+    mlflow.log_metric("specificity_std", specificity_std)
+
+    sensitivity_mean = np.mean(sensitivity_list)
+    sensitivity_std = np.std(sensitivity_list)
+    mlflow.log_metric("sensitivity_mean", sensitivity_mean)
+    mlflow.log_metric("sensitivity_std", sensitivity_std)
+
+    precision_mean = np.mean(precision_list)
+    precision_std = np.std(precision_list)
+    mlflow.log_metric("precision_mean", precision_mean)
+    mlflow.log_metric("precision_std", precision_std)
+
+    recall_mean = np.mean(recall_list)
+    recall_std = np.std(recall_list)
+    mlflow.log_metric("recall_mean", recall_mean)
+    mlflow.log_metric("recall_std", recall_std)
 
 if __name__ == "__main__":
 

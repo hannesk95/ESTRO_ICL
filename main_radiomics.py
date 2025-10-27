@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import os
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
 
 def get_model_and_param_grid(model_type):
     
@@ -105,6 +106,10 @@ def main(model_type:str, dimension:str, dataset:str):
     outer_results_f1 = list()
     outer_results_mcc = list()
     outer_results_auroc = list()
+    outer_results_specificity = list()
+    outer_results_sensitivity = list()
+    outer_results_precision = list()
+    outer_results_recall = list()
 
     outer_true = list()
     outer_pred = list()
@@ -141,16 +146,30 @@ def main(model_type:str, dimension:str, dataset:str):
         mcc = matthews_corrcoef(y_test, yhat)
         auroc = roc_auc_score(y_test, best_model.predict_proba(X_test)[:, 1])
 
+        tn, fp, fn, tp = confusion_matrix(y_test, yhat).ravel()
+        specificity = tn / (tn + fp)
+        sensitivity = tp / (tp + fn)
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+
         mlflow.log_metric(f"bacc_fold_{i}", bacc)
         mlflow.log_metric(f"f1_fold_{i}", f1)
         mlflow.log_metric(f"mcc_fold_{i}", mcc)
         mlflow.log_metric(f"auroc_fold_{i}", auroc)
+        mlflow.log_metric(f"specificity_fold_{i}", specificity)
+        mlflow.log_metric(f"sensitivity_fold_{i}", sensitivity)
+        mlflow.log_metric(f"precision_fold_{i}", precision)
+        mlflow.log_metric(f"recall_fold_{i}", recall)   
 
         outer_results_bacc.append(bacc)
         outer_results_f1.append(f1)
         outer_results_mcc.append(mcc)
         outer_results_auroc.append(auroc)
-        
+        outer_results_specificity.append(specificity)
+        outer_results_sensitivity.append(sensitivity)
+        outer_results_precision.append(precision)
+        outer_results_recall.append(recall)
+
         # report progress
         print('>bacc=%.3f, est=%.3f, cfg=%s' % (bacc, result.best_score_, result.best_params_))
 
@@ -168,6 +187,14 @@ def main(model_type:str, dimension:str, dataset:str):
     mlflow.log_metric("mcc_std", std(outer_results_mcc))
     mlflow.log_metric("auroc_mean", mean(outer_results_auroc))
     mlflow.log_metric("auroc_std", std(outer_results_auroc))
+    mlflow.log_metric("specificity_mean", mean(outer_results_specificity))
+    mlflow.log_metric("specificity_std", std(outer_results_specificity))
+    mlflow.log_metric("sensitivity_mean", mean(outer_results_sensitivity))
+    mlflow.log_metric("sensitivity_std", std(outer_results_sensitivity))
+    mlflow.log_metric("precision_mean", mean(outer_results_precision))
+    mlflow.log_metric("precision_std", std(outer_results_precision))
+    mlflow.log_metric("recall_mean", mean(outer_results_recall))
+    mlflow.log_metric("recall_std", std(outer_results_recall))
 
     # ---------------------------------------------------------------------
     # Confusion matrices for visualization
