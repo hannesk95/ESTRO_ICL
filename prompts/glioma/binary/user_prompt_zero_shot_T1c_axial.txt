@@ -1,30 +1,27 @@
-Good answers:
-- contain only "high-grade" or "low-grade" as valid answers in the "answer" field with no punctuation and in this exact format
+Good answers contain only "high-grade" or "low-grade" as valid answers in the "answer" field with no punctuation and in this exact format
 
-The patient's image is a T1-weighted, Fat-Saturated, Gadolinium-Enhanced MRI sequence (T1FsGd) representing an axial volume slice showing the biggest tumor area.
+The patient's image originates from a post-contrast T1-weighted (T1c) MRI sequence representing an axial volume slice showing the slice with the biggest tumor area.
 
-1. Have a look at the patient image that is provided below. Take a deep breath and think about wheter you see patterns of high-grade or low-grade soft-tissue sarcoma given all your knowledge you have in radiology.
-2. Finalize your answer with a score. As an example, a score of 1 means you are 100% sure to see a high-grade soft-tissue sarcoma, a score of 0 means you see a low-grade soft-tissue sarcoma in the image. A score close to 0.6 means you had to guess, but you tend towards seeing a high-grade soft-tissue sarcoma. The answer should contain "high-grade" or "low-grade" only. 
+1. Have a look at the patient image that is provided below. Take a deep breath and think about wheter you see patterns of high-grade or low-grade brain glioma given all your knowledge you have in radiology.
+2. Finalize your answer with a score. As an example, a score of 1 means you are 100% sure to see a high-grade brain glioma, a score of 0 means you see a low-grade brain glioma in the image. A score close to 0.6 means you had to guess, but you tend towards seeing a high-grade brain glioma. The answer should contain "high-grade" or "low-grade" only. 
 
-Here are some considerations to take into account:
-- On post-contrast T1-weighted fat-suppressed (T1FsGd) imaging, the primary diagnostic distinction between low-grade and high-grade soft-tissue sarcomas** lies in the pattern and intensity of contrast enhancement and the degree of internal heterogeneity after gadolinium administration. Fat suppression removes bright fat signal, thereby emphasizing contrast-enhancing tumor components, non-enhancing necrotic regions, and peritumoral edema with greater clarity.
-- A low-grade sarcoma typically demonstrates homogeneous or mildly heterogeneous enhancement with smooth, well-defined margins and limited surrounding edema. In contrast, a high-grade sarcoma generally exhibits markedly heterogeneous enhancement with non-enhancing necrotic cores, peripheral or septal enhancement, and ill-defined, infiltrative borders extending into adjacent structures. Prominent peritumoral enhancement or irregular peripheral enhancement patterns may suggest tumor angiogenesis, characteristic of aggressive disease.
-- On T1FsGd, a low-grade sarcoma enhances uniformly, with clear margins and limited edema, reflecting more organized tumor architecture. A high-grade sarcoma shows marked enhancement heterogeneity, non-enhancing necrotic cores, and ill-defined borders, reflecting aggressive vascular proliferation, necrosis, and infiltrative growth.
-- In low-grade sarcomas, enhancement after gadolinium administration is typically mild to moderate and appears relatively homogeneous throughout the lesion.
-- In high-grade sarcomas, enhancement is usually strong, irregular, and markedly heterogeneous, reflecting necrotic and highly vascularized tumor components.
-- Low-grade sarcomas generally show little or no non-enhancing tissue, indicating preserved viability of most tumor cells.
-- High-grade sarcomas, in contrast, frequently contain central or patchy areas that fail to enhance, corresponding to necrosis or cystic degeneration caused by rapid tumor growth and poor perfusion.
-- Low-grade sarcomas tend to have smooth, well-defined, and sometimes encapsulated borders that clearly separate them from surrounding structures.
-- High-grade sarcomas often demonstrate ill-defined or infiltrative margins with irregular peripheral enhancement, suggesting aggressive invasion into adjacent tissue planes.
-- In low-grade sarcomas, peritumoral edema is minimal or absent, and surrounding tissues show little reactive enhancement.
-- High-grade sarcomas frequently exhibit extensive peritumoral edema and irregular enhancement in nearby soft tissues, consistent with inflammatory or infiltrative tumor spread.
-- Low-grade sarcomas display few or thin internal septa with regular, smooth enhancement patterns, reflecting limited vascular proliferation.
-- High-grade sarcomas, on the other hand, often contain thick, irregular, and markedly enhancing septations that indicate pronounced neovascularization and intratumoral complexity.
-- Low-grade sarcomas typically appear compact, organized, and confined, with little disruption of normal tissue planes.
-- High-grade sarcomas present as bulky, disorganized masses with heterogeneous internal architecture, containing areas of necrosis, hemorrhage, and irregular enhancement patterns suggestive of high biological aggressiveness.
+Here are some considerations to take into account when distinguishing between high-grade and low-grade gliomas:
+
+| **Feature**                              | **Low-grade (WHO CNS Grade 2–3)**              | **High-grade (WHO CNS Grade 4)**                                          |
+| ---------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
+| **Contrast enhancement**                 | None or faint, often homogeneous               | Strong, heterogeneous, or ring-like enhancement                           |
+| **Signal intensity (enhancing regions)** | Iso- to mildly hyperintense relative to cortex | Markedly hyperintense enhancing rim with central hypointensity (necrosis) |
+| **Necrosis / cystic areas**              | Absent or minimal                              | Common; appear as central non-enhancing (dark) areas                      |
+| **Tumor margins**                        | Smooth, well-defined                           | Irregular, ill-defined, and infiltrative                                  |
+| **Peritumoral edema**                    | Minimal or mild; often not visible on T1c      | Extensive low-signal regions surrounding enhancement                      |
+| **Mass effect**                          | Mild, proportional to lesion volume            | Pronounced; often disproportionate to enhancing core                      |
+| **Midline involvement**                  | Rare                                           | Possible (“butterfly” configuration across corpus callosum)               |
+| **Enhancement pattern**                  | Absent or patchy (if grade 3)                  | Thick, irregular, or ring-like; may surround necrotic center              |
+| **Vascularity (appearance)**             | Low; no visible abnormal vessels               | High; prominent enhancement due to neovascularization                     |
+| **Heterogeneity**                        | Low (uniform internal signal)                  | High (mixed enhancing, necrotic, and hemorrhagic components)              |
 
 
-Again here is the template to structure your JSON output. Your response MUST be a single, valid JSON object and nothing else. 
+Again here is the template to structure your JSON output (please make sure that you use ',' delimiter after each entry): 
 
 {
     "answer": allowed values are "high-grade" or "low-grade",
@@ -33,6 +30,6 @@ Again here is the template to structure your JSON output. Your response MUST be 
 
 Begin your response with '{' and end with '}'. Do not use markdown code fences.
 
-Please note, even if think that the image provided is not an MRI scan of a soft tissue sarcoma, please always stick to the template above, by only giving an answer as a valid string and a score as a valid float and nothing else! Please avoid returning None for the score, please always give a floating point value for the score! 
+Please note, even if think that the image provided is not an MRI scan of a brain glioma, please always stick to the template above, by only giving an answer as a valid string and a score as a valid float and nothing else! Please avoid returning None for the score, please always give a floating point value for the score! 
 
 Here is the patient image:
