@@ -1,0 +1,37 @@
+Good answers:
+- contain only "high-grade" or "low-grade" as valid answers in the "answer" field with no punctuation and in this exact format
+
+The patient's image is a T2-weighted, Fat-Saturated MRI sequence (T2Fs) representing an axial volume slice showing the biggest tumor area.
+
+1. Have a look at the patient image that is provided below. Take a deep breath and think about wheter you see patterns of high-grade or low-grade soft-tissue sarcoma given all your knowledge you have in radiology.
+2. Finalize your answer with a score. As an example, a score of 1 means you are 100% sure to see a high-grade soft-tissue sarcoma, a score of 0 means you see a low-grade soft-tissue sarcoma in the image. A score close to 0.6 means you had to guess, but you tend towards seeing a high-grade soft-tissue sarcoma. The answer should contain "high-grade" or "low-grade" only. 
+
+Here are some considerations to take into account:
+- On T2-weighted fat-suppressed (T2Fs) imaging, the primary diagnostic distinction between low-grade and high-grade soft-tissue sarcomas lies in the degree of internal signal heterogeneity, extent of peritumoral edema, and definition of tumor margins. Fat suppression eliminates bright fat signal, enhancing visualization of fluid-rich, edematous, and necrotic tumor components, as well as subtle infiltration into adjacent tissues.
+- A low-grade sarcoma typically demonstrates relatively homogeneous intermediate-to-mildly high T2 signal intensity with smooth, well-defined margins and minimal surrounding edema. In contrast, a high-grade sarcoma generally exhibits markedly heterogeneous T2 hyperintensity with internal necrotic or cystic regions, thick irregular septations, and ill-defined, infiltrative borders extending into adjacent structures. Prominent peritumoral high-signal regions or irregular peripheral hyperintensity patterns may indicate tumor-associated edema and infiltration, characteristic of aggressive disease.
+- On T2Fs, a low-grade sarcoma appears uniformly or mildly hyperintense with clear margins and limited peritumoral signal abnormality, reflecting more organized tissue architecture and lower water content. A high-grade sarcoma shows marked internal signal heterogeneity with hyperintense necrotic cores, thick internal septa, and ill-defined margins, reflecting aggressive growth, necrosis, and stromal disorganization.
+- In low-grade sarcomas, T2 signal intensity is typically homogeneous and moderately increased, with uniform internal texture and few or no necrotic foci.
+- In high-grade sarcomas, T2 signal intensity is usually very high and markedly heterogeneous, with irregular areas of cystic or necrotic change corresponding to regions of tissue breakdown and increased water content.
+- Low-grade sarcomas generally show little or no central fluid-like regions, indicating preserved cellular organization and limited necrosis.
+- High-grade sarcomas, in contrast, frequently contain central or patchy areas of very high T2 signal, corresponding to necrosis or cystic degeneration caused by rapid tumor growth and poor perfusion.
+- Low-grade sarcomas tend to have smooth, well-defined, and sometimes encapsulated borders that clearly separate them from surrounding muscle and fat.
+- High-grade sarcomas often demonstrate ill-defined or infiltrative margins with irregular extensions into adjacent tissues, suggesting aggressive invasion beyond fascial boundaries.
+- In low-grade sarcomas, peritumoral edema is minimal or absent, and surrounding tissues show little or no T2 hyperintensity.
+- High-grade sarcomas frequently exhibit extensive peritumoral edema with high T2 signal intensity in nearby soft tissues, consistent with inflammatory or infiltrative tumor spread.
+- Low-grade sarcomas display few or thin internal septa with smooth, regular morphology, reflecting limited fibrous stroma and vascular proliferation.
+- High-grade sarcomas, on the other hand, often contain thick, irregular, and markedly hyperintense septations that indicate pronounced stromal reaction, neovascularization, and intratumoral complexity.
+- Low-grade sarcomas typically appear compact, organized, and confined, with preservation of normal tissue planes and limited surrounding edema.
+- High-grade sarcomas present as bulky, disorganized masses with heterogeneous internal architecture, containing areas of necrosis, hemorrhage, and irregular T2 hyperintensity patterns suggestive of high biological aggressiveness.
+
+Again here is the template to structure your JSON output. Your response MUST be a single, valid JSON object and nothing else. 
+
+{
+    "answer": allowed values are "high-grade" or "low-grade",
+    "score": a valid floating point value from 0.0 to 1.0 
+}
+
+Begin your response with '{' and end with '}'. Do not use markdown code fences.
+
+Please note, even if think that the image provided is not an MRI scan of a soft tissue sarcoma, please always stick to the template above, by only giving an answer as a valid string and a score as a valid float and nothing else! Please avoid returning None for the score, please always give a floating point value for the score! 
+
+Here is the patient image:

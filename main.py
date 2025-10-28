@@ -166,6 +166,7 @@ if __name__ == "__main__":
                 # for decomposition in ["mip", "axial", "axial+"]:
                 for decomposition in ["axial"]:
 
+                    mlflow.set_experiment("test-run")
                     mlflow.start_run()
                     main(model_name, task, shots, sampling, decomposition)
                     mlflow.end_run()
