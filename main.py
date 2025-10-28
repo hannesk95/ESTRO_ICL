@@ -159,12 +159,14 @@ if __name__ == "__main__":
     models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-27b-it"]
     model_name = models[args.model_id]
 
-    for task in ["glioma_binary_flair", "glioma_binary_flair", "sarcoma_binary_t1", "sarcoma_binary_t2"]:
+    for task in ["glioma_binary_t1c", "glioma_binary_flair", "sarcoma_binary_t1", "sarcoma_binary_t2"]:
         for shots in [0, 3, 5, 10]:
             # for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D", "dinov3"]:
             for sampling in ["dinov3", "radiomics_2D", "random"]:
                 # for decomposition in ["mip", "axial", "axial+"]:
                 for decomposition in ["axial"]:
+
+                    print(f"Starting experiment: {model_name}, {task}, {shots}, {sampling}, {decomposition}")
 
                     # mlflow.set_experiment("test-run")
                     mlflow.start_run()
