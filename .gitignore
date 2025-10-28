@@ -1,6 +1,7 @@
 # directories
 __pycache__
 conda_env
+google_env
 mlruns
 GPT-4V-In-Context-Learning
 
@@ -10,3 +11,4 @@ GPT-4V-In-Context-Learning
 *.nii.gz
 *.json
 *.ipynb
+*.jpg

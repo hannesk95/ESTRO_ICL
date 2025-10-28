@@ -29,6 +29,14 @@ def main(model_name, task, shots, sampling, decomposition):
             files = sorted([f for f in files if not "label" in f])
             labels = [int(os.path.basename(f).split("_")[2]) for f in files]
             labels = [0 if l == 1 else 1 for l in labels]
+        case "glioma_binary_t1c":
+            files = sorted(glob(f"./data/glioma/binary/T1c/*image*{decomposition}.png"))
+            labels = [int(os.path.basename(f).split("_")[4]) for f in files]
+            labels = [0 if l < 4 else 1 for l in labels]
+        case "glioma_binary_flair":
+            files = sorted(glob(f"./data/glioma/binary/FLAIR/*image*{decomposition}.png"))
+            labels = [int(os.path.basename(f).split("_")[4]) for f in files]
+            labels = [0 if l < 4 else 1 for l in labels]
         case _:
             raise NotImplementedError(f"Task {task} not implemented.")
 
@@ -43,7 +51,7 @@ def main(model_name, task, shots, sampling, decomposition):
     bacc_list = []
     mcc_list = []
     f1_list = []
-    auroc_list = []
+    # auroc_list = []
     specificity_list = []
     sensitivity_list = []
     precision_list = []
@@ -58,24 +66,24 @@ def main(model_name, task, shots, sampling, decomposition):
 
         true_labels = []
         pred_labels = []
-        pred_scores = []
+        # pred_scores = []
         for test_file, test_label in tqdm(zip(test_files, test_labels), total=len(test_files), desc=f"Fold {fold}"):        
             output = model(test_file, train_files, train_labels)
 
             pred_label = output["answer"]
             pred_label = 0 if pred_label == "low-grade" else 1
-            pred_score = float(output["score"])
-            pred_score = pred_score if pred_label == 1 else 1 - pred_score
+            # pred_score = float(output["score"])
+            # pred_score = pred_score if pred_label == 1 else 1 - pred_score
 
             true_labels.append(test_label)
             pred_labels.append(pred_label)
-            pred_scores.append(pred_score)
+            # pred_scores.append(pred_score)
 
         # Compute metrics
         bal_acc = balanced_accuracy_score(test_labels, pred_labels)
         mcc = matthews_corrcoef(test_labels, pred_labels)
         f1 = f1_score(test_labels, pred_labels, average="weighted")
-        roc_auc = roc_auc_score(test_labels, pred_scores)
+        # roc_auc = roc_auc_score(test_labels, pred_scores)
         tn, fp, fn, tp = confusion_matrix(true_labels, pred_labels).ravel()
         specificity = tn / (tn + fp)
         sensitivity = tp / (tp + fn)
@@ -86,7 +94,7 @@ def main(model_name, task, shots, sampling, decomposition):
         mlflow.log_metric(f"fold_{fold}_bcc", bal_acc)
         mlflow.log_metric(f"fold_{fold}_mcc", mcc)
         mlflow.log_metric(f"fold_{fold}_f1-score", f1)
-        mlflow.log_metric(f"fold_{fold}_auroc", roc_auc)
+        # mlflow.log_metric(f"fold_{fold}_auroc", roc_auc)
         mlflow.log_metric(f"fold_{fold}_specificity", specificity)
         mlflow.log_metric(f"fold_{fold}_sensitivity", sensitivity)
         mlflow.log_metric(f"fold_{fold}_precision", precision)
@@ -95,7 +103,7 @@ def main(model_name, task, shots, sampling, decomposition):
         bacc_list.append(bal_acc)
         mcc_list.append(mcc)
         f1_list.append(f1)
-        auroc_list.append(roc_auc)
+        # auroc_list.append(roc_auc)
         specificity_list.append(specificity)
         sensitivity_list.append(sensitivity)
         precision_list.append(precision)
@@ -117,10 +125,10 @@ def main(model_name, task, shots, sampling, decomposition):
     mlflow.log_metric("f1_mean", f1_mean)
     mlflow.log_metric("f1_std", f1_std)
     
-    auroc_mean = np.mean(auroc_list)
-    auroc_std = np.std(auroc_list)
-    mlflow.log_metric("auroc_mean", auroc_mean)
-    mlflow.log_metric("auroc_std", auroc_std)
+    # auroc_mean = np.mean(auroc_list)
+    # auroc_std = np.std(auroc_list)
+    # mlflow.log_metric("auroc_mean", auroc_mean)
+    # mlflow.log_metric("auroc_std", auroc_std)
 
     specificity_mean = np.mean(specificity_list)
     specificity_std = np.std(specificity_list)
@@ -148,15 +156,16 @@ if __name__ == "__main__":
     argparser.add_argument("--model_id", type=int, default=0)
     args = argparser.parse_args()
 
-    models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-12b-it", "google/gemma-3-27b-it"]
+    models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-27b-it"]
     model_name = models[args.model_id]
 
-    for task in ["sarcoma_binary_t1", "sarcoma_binary_t2"]:
+    for task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]:
         for shots in [0, 3, 5, 10]:
-            for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D"]:
-                for decomposition in ["mip", "axial", "axial+"]:
+            # for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D", "dinov3"]:
+            for sampling in ["random", "radiomics_2D", "dinov3"]:
+                # for decomposition in ["mip", "axial", "axial+"]:
+                for decomposition in ["axial"]:
 
-                    # mlflow.set_experiment(f"temp")
                     mlflow.start_run()
                     main(model_name, task, shots, sampling, decomposition)
                     mlflow.end_run()

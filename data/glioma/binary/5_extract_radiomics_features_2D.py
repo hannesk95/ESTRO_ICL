@@ -71,5 +71,5 @@ def extract_features_2d(dataset_path):
 
 if __name__ == "__main__":
 
-    for dataset_path in ["/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/glioma/binary/T1c"]:
+    for dataset_path in ["/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/glioma/binary/FLAIR"]:
         extract_features_2d(dataset_path)

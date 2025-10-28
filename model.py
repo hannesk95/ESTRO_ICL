@@ -21,9 +21,9 @@ class VisionLanguageModel:
                  ):
 
         assert model_name in ["google/medgemma-4b-it", "google/gemma-3-4b-it", "google/medgemma-27b-it", "google/gemma-3-27b-it", "google/gemma-3-12b-it"]
-        assert shots in [0, 1, 3, 5, 7, 10, -1]
-        assert sampling in ["radiomics_2D", "radiomics_3D", "random", "worst-case_2D", "worst-case_3D"]
-        assert task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "sarcoma_multiclass"]
+        assert shots in [0, 1, 3, 5, 7, 10]
+        assert sampling in ["radiomics_2D", "radiomics_3D", "random", "worst-case_2D", "worst-case_3D", "dinov3"]
+        assert task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]
         assert decomposition in ["axial", "axial+", "mip"]
 
         self.modle_name = model_name
@@ -161,6 +161,14 @@ class VisionLanguageModel:
                     file_path = f"./prompts/sarcoma/binary/user_prompt_zero_shot_T2Fs_{self.decomposition}.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
+                case "glioma_binary_t1c":
+                    file_path = f"./prompts/glioma/binary/user_prompt_zero_shot_T1c_{self.decomposition}.txt"
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                case "glioma_binary_flair":
+                    file_path = f"./prompts/glioma/binary/user_prompt_zero_shot_FLAIR_{self.decomposition}.txt"
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
                 case _:
                     raise NotImplementedError(f"Task {self.task} not implemented.")
             
@@ -185,11 +193,15 @@ class VisionLanguageModel:
                 images_low_grade = np.array(images_low_grade)[low_grade_indices]
                 images_high_grade = np.array(images_high_grade)[high_grade_indices]
 
-            elif self.sampling in ["radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D"]:
+            elif self.sampling in ["radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D", "dinov3"]:
 
-                similarity_type = self.sampling.split("_")[1]
-                files = [f.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt") for f in train_samples]
-                files.append(test_sample.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt"))                
+                if self.sampling == "dinov3":
+                    files = [f.replace(f"_preprocessed_{self.decomposition}.png", f"_featuresDINOv3.pt") for f in train_samples]
+                    files.append(test_sample.replace(f"_preprocessed_{self.decomposition}.png", f"_featuresDINOv3.pt"))
+                else:
+                    similarity_type = self.sampling.split("_")[1]
+                    files = [f.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt") for f in train_samples]
+                    files.append(test_sample.replace(f"_preprocessed_{self.decomposition}.png", f"_features{similarity_type}.pt"))                
 
                 vectors = []
                 patient_ids = []
@@ -241,6 +253,14 @@ class VisionLanguageModel:
                         content = f.read()
                 case "sarcoma_binary_t2":
                     file_path = f"./prompts/sarcoma/binary/user_prompt_few_shot_T2Fs_{self.decomposition}.txt"
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                case "glioma_binary_t1c":
+                    file_path = f"./prompts/glioma/binary/user_prompt_few_shot_T1c_{self.decomposition}.txt"
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                case "glioma_binary_flair":
+                    file_path = f"./prompts/glioma/binary/user_prompt_few_shot_FLAIR_{self.decomposition}.txt"
                     with open(file_path, "r", encoding="utf-8") as f:
                         content = f.read()
                 case _:
