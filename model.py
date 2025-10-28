@@ -131,6 +131,14 @@ class VisionLanguageModel:
                 file_path = "./prompts/sarcoma/binary/system_prompt_T2Fs.txt"
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
+            case "glioma_binary_t1c":
+                file_path = "./prompts/glioma/binary/system_prompt_T1c.txt"
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            case "glioma_binary_flair":
+                file_path = "./prompts/glioma/binary/system_prompt_FLAIR.txt"
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
             case _:
                 raise NotImplementedError(f"Task {self.task} not implemented.")
 
@@ -208,8 +216,12 @@ class VisionLanguageModel:
 
                 for f in files:                   
                  
-                    data = torch.load(f)
-                    vector = [data[k] for k in data.keys()]
+                    if self.sampling == "dinov3":
+                        data = torch.load(f, weights_only=False)
+                        vector = data.tolist()
+                    else:
+                        data = torch.load(f)
+                        vector = [data[k] for k in data.keys()]
                     vectors.append(vector)
 
                     patient_id = os.path.basename(f).split("_")[0]

@@ -31,11 +31,11 @@ def main(model_name, task, shots, sampling, decomposition):
             labels = [0 if l == 1 else 1 for l in labels]
         case "glioma_binary_t1c":
             files = sorted(glob(f"./data/glioma/binary/T1c/*image*{decomposition}.png"))
-            labels = [int(os.path.basename(f).split("_")[4]) for f in files]
+            labels = [int(os.path.basename(f).split("_")[-5]) for f in files]
             labels = [0 if l < 4 else 1 for l in labels]
         case "glioma_binary_flair":
             files = sorted(glob(f"./data/glioma/binary/FLAIR/*image*{decomposition}.png"))
-            labels = [int(os.path.basename(f).split("_")[4]) for f in files]
+            labels = [int(os.path.basename(f).split("_")[-5]) for f in files]
             labels = [0 if l < 4 else 1 for l in labels]
         case _:
             raise NotImplementedError(f"Task {task} not implemented.")
@@ -159,14 +159,14 @@ if __name__ == "__main__":
     models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-27b-it"]
     model_name = models[args.model_id]
 
-    for task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]:
+    for task in ["glioma_binary_flair", "glioma_binary_flair", "sarcoma_binary_t1", "sarcoma_binary_t2"]:
         for shots in [0, 3, 5, 10]:
             # for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D", "dinov3"]:
-            for sampling in ["random", "radiomics_2D", "dinov3"]:
+            for sampling in ["dinov3", "radiomics_2D", "random"]:
                 # for decomposition in ["mip", "axial", "axial+"]:
                 for decomposition in ["axial"]:
 
-                    mlflow.set_experiment("test-run")
+                    # mlflow.set_experiment("test-run")
                     mlflow.start_run()
                     main(model_name, task, shots, sampling, decomposition)
                     mlflow.end_run()
