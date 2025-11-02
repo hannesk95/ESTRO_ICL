@@ -51,38 +51,33 @@ def main(model_name, task, shots, sampling, decomposition, dataset_fraction):
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     if dataset_fraction < 1.0:
-        # files, _, labels, _ = train_test_split(files, labels, train_size=dataset_fraction, stratify=labels, random_state=42)
 
         files = np.array(files)
         labels = np.array(labels)
-        
-        # Indices per class
-        idx_0 = np.where(labels == 0)[0]  # majority
-        idx_1 = np.where(labels == 1)[0]  # minority
 
-        # Keep all minority samples
-        selected_idx = idx_1.copy()
+        target_size = int(len(labels) * dataset_fraction)
+        idx_0 = np.where(labels == 0)[0] 
+        idx_1 = np.where(labels == 1)[0] 
 
-        # How many total samples do we want?
-        n_total = int(0.75 * len(labels))
+        min_class_size = min(len(idx_0), len(idx_1))
+        n_per_class = target_size // 2
 
-        # How many additional majority samples do we need?
-        remaining = n_total - len(selected_idx)
-        remaining = max(0, min(remaining, len(idx_0)))  # clamp in case of edge cases
+        sample_indices = []
+        if n_per_class <= min_class_size:
+            sampled_idx_0 = np.random.choice(idx_0, n_per_class, replace=False)
+            sampled_idx_1 = np.random.choice(idx_1, n_per_class, replace=False)
+        else:
+            sampled_idx_0 = np.random.choice(idx_0, min_class_size, replace=False)
+            sampled_idx_1 = np.random.choice(idx_1, (target_size - min_class_size), replace=False)
 
-        # Randomly select that many majority samples
-        sampled_idx_0 = np.random.choice(idx_0, remaining, replace=False)
+        sample_indices.extend(sampled_idx_0)
+        sample_indices.extend(sampled_idx_1)
 
-        # Combine and shuffle
-        selected_idx = np.concatenate([selected_idx, sampled_idx_0])
-        np.random.shuffle(selected_idx)
+        files = files.tolist()
+        labels = labels.tolist()
 
-        # Final lists
-        files_reduced = files[selected_idx].tolist()
-        labels_reduced = labels[selected_idx].tolist()
-
-        files = files_reduced
-        labels = labels_reduced
+        files = [files[i] for i in sample_indices]
+        labels = [labels[i] for i in sample_indices]        
 
     bacc_list = []
     mcc_list = []
@@ -196,7 +191,7 @@ if __name__ == "__main__":
     # model_name = models[args.model_id]
     model_name = "google/medgemma-4b-it"
 
-    dataset_fractions = [0.10, 0.25, 0.50, 0.75]
+    dataset_fractions = [0.20, 0.40, 0.60, 0.80]
     dataset_fraction = dataset_fractions[args.model_id]
 
     for task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]:
@@ -206,7 +201,7 @@ if __name__ == "__main__":
                 # for decomposition in ["mip", "axial", "axial+"]:
                 for decomposition in ["axial"]:
 
-                    print(f"Starting experiment: {model_name}, {task}, {shots}, {sampling}, {decomposition}")
+                    print(f"Starting experiment: {model_name}, {task}, {shots}, {sampling}, {decomposition}, {dataset_fraction}")
 
                     mlflow.set_experiment("fractional_data_experiments")
                     mlflow.start_run()
