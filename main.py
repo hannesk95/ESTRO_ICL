@@ -8,15 +8,17 @@ from tqdm import tqdm
 import numpy as np
 import argparse
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
 
 
-def main(model_name, task, shots, sampling, decomposition):
+def main(model_name, task, shots, sampling, decomposition, dataset_fraction):
 
     mlflow.log_param("model_name", model_name)
     mlflow.log_param("task", task)
     mlflow.log_param("shots", shots)
     mlflow.log_param("sampling", sampling)
     mlflow.log_param("decomposition", decomposition)
+    mlflow.log_param("dataset_fraction", dataset_fraction)
 
     match task:
         case "sarcoma_binary_t1":
@@ -47,6 +49,9 @@ def main(model_name, task, shots, sampling, decomposition):
                                 decomposition=decomposition)
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    if dataset_fraction < 1.0:
+        files, _, labels, _ = train_test_split(files, labels, train_size=dataset_fraction, stratify=labels, random_state=42)
 
     bacc_list = []
     mcc_list = []
@@ -156,10 +161,14 @@ if __name__ == "__main__":
     argparser.add_argument("--model_id", type=int, default=0)
     args = argparser.parse_args()
 
-    models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-27b-it"]
-    model_name = models[args.model_id]
+    # models = ["google/medgemma-4b-it", "google/medgemma-27b-it", "google/gemma-3-4b-it", "google/gemma-3-27b-it"]
+    # model_name = models[args.model_id]
+    model_name = "google/medgemma-4b-it"
 
-    for task in ["glioma_binary_t1c", "glioma_binary_flair", "sarcoma_binary_t1", "sarcoma_binary_t2"]:
+    dataset_fractions = [0.10, 0.25, 0.50, 0.75]
+    dataset_fraction = dataset_fractions[args.model_id]
+
+    for task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]:
         for shots in [0, 3, 5, 10]:
             # for sampling in ["random", "radiomics_2D", "radiomics_3D", "worst-case_2D", "worst-case_3D", "dinov3"]:
             for sampling in ["dinov3", "radiomics_2D", "random"]:
@@ -168,7 +177,7 @@ if __name__ == "__main__":
 
                     print(f"Starting experiment: {model_name}, {task}, {shots}, {sampling}, {decomposition}")
 
-                    # mlflow.set_experiment("test-run")
+                    mlflow.set_experiment("fractional_data_experiments")
                     mlflow.start_run()
-                    main(model_name, task, shots, sampling, decomposition)
+                    main(model_name, task, shots, sampling, decomposition, dataset_fraction)
                     mlflow.end_run()
