@@ -86,15 +86,29 @@ def main(model_type:str, dimension:str, dataset:str):
     mlflow.log_param("dimension", dimension)
     mlflow.log_param("dataset", dataset)
 
-    data = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/sarcoma/binary/{dataset}/*_features{dimension}.pt"))
+    match dataset:
+        case "sarcoma_binary_t1":
+            data = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/sarcoma/binary/T1FsGd/*_features{dimension}.pt"))
+        case "sarcoma_binary_t2":
+            data = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/sarcoma/binary/T2Fs/*_features{dimension}.pt"))
+        case "glioma_binary_t1c":
+            data = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/glioma/binary/T1c/*_features{dimension}.pt"))
+        case "glioma_binary_flair":
+            data = sorted(glob(f"/home/johannes/Data/SSD_2.0TB/ESTRO_ICL/data/glioma/binary/FLAIR/*_features{dimension}.pt"))
+        case _:
+            raise ValueError("Unsupported dataset")    
 
     features = []
     labels = []
     for file in data:
         dictionary = torch.load(file)
         features.append(list(dictionary.values()))
-        grade = int(file.split("/")[-1].split("_")[2])
-        labels.append(0 if grade == 1 else 1)
+        if "sarcoma" in dataset:
+            grade = int(file.split("/")[-1].split("_")[2])
+            labels.append(0 if grade == 1 else 1)
+        else:
+            grade = int(file.split("/")[-1].split("_")[4])
+            labels.append(0 if grade in [2, 3] else 1)        
 
     X = np.array(features)
     y = np.array(labels)
@@ -213,8 +227,9 @@ def main(model_type:str, dimension:str, dataset:str):
 if __name__ == "__main__":
 
     for dimension in ['2D', '3D']:
-        for dataset in ["T1FsGd", "T2Fs"]:
-            for model_type in ['lr', 'svm', 'rf']:
+        for dataset in ["glioma_binary_t1c", "glioma_binary_flair", "sarcoma_binary_t1", "sarcoma_binary_t2"]:
+            # for model_type in ['lr', 'svm', 'rf']:
+            for model_type in ['rf']:
                 mlflow.set_experiment("radiomics")
                 mlflow.start_run()
                 print(f"Model type: {model_type}, Dimension: {dimension}, Dataset: {dataset}")
