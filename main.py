@@ -51,7 +51,38 @@ def main(model_name, task, shots, sampling, decomposition, dataset_fraction):
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     if dataset_fraction < 1.0:
-        files, _, labels, _ = train_test_split(files, labels, train_size=dataset_fraction, stratify=labels, random_state=42)
+        # files, _, labels, _ = train_test_split(files, labels, train_size=dataset_fraction, stratify=labels, random_state=42)
+
+        files = np.array(files)
+        labels = np.array(labels)
+        
+        # Indices per class
+        idx_0 = np.where(labels == 0)[0]  # majority
+        idx_1 = np.where(labels == 1)[0]  # minority
+
+        # Keep all minority samples
+        selected_idx = idx_1.copy()
+
+        # How many total samples do we want?
+        n_total = int(0.75 * len(labels))
+
+        # How many additional majority samples do we need?
+        remaining = n_total - len(selected_idx)
+        remaining = max(0, min(remaining, len(idx_0)))  # clamp in case of edge cases
+
+        # Randomly select that many majority samples
+        sampled_idx_0 = np.random.choice(idx_0, remaining, replace=False)
+
+        # Combine and shuffle
+        selected_idx = np.concatenate([selected_idx, sampled_idx_0])
+        np.random.shuffle(selected_idx)
+
+        # Final lists
+        files_reduced = files[selected_idx].tolist()
+        labels_reduced = labels[selected_idx].tolist()
+
+        files = files_reduced
+        labels = labels_reduced
 
     bacc_list = []
     mcc_list = []
