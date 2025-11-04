@@ -312,7 +312,13 @@ class VisionLanguageModel:
     def __call__(self, test_sample, train_samples, train_labels):
 
         message = self.create_message(test_sample, train_samples, train_labels)
-        output = self.pipe(text=message, max_new_tokens=200)
+        output = self.pipe(text=message, 
+                           max_new_tokens=200,
+                           do_sample=False,   # disable randomness
+                           num_beams=1,       # greedy decoding
+                           temperature=None,  # don't alter logits
+                           top_k=None,        # ensure no hidden sampling
+                           top_p=None)
 
         output = output[0]["generated_text"][-1]["content"]       
         # cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", output.strip(), flags=re.DOTALL)     

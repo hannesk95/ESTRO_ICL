@@ -191,7 +191,7 @@ if __name__ == "__main__":
     # model_name = models[args.model_id]
     model_name = "google/medgemma-4b-it"
 
-    dataset_fractions = [0.20, 0.40, 0.60, 0.80]
+    dataset_fractions = [0.25, 0.50, 0.75, 1.00]
     dataset_fraction = dataset_fractions[args.model_id]
 
     for task in ["sarcoma_binary_t1", "sarcoma_binary_t2", "glioma_binary_t1c", "glioma_binary_flair"]:
